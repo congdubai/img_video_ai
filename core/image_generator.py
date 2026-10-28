@@ -2,12 +2,22 @@ import os
 import random
 import time
 import json
+import math
 from typing import Optional, Callable, Dict, Any, List
 from PIL import Image, ImageDraw, ImageFont
 
 from core.models import PromptsData, ImagesData, ImageMetaItem
 from core.hash_utils import compute_file_hash, atomic_write_json
 from core.config import load_project_config
+
+def math_rad(deg: float) -> float:
+    return math.radians(deg)
+
+def math_cos(rad: float) -> float:
+    return math.cos(rad)
+
+def math_sin(rad: float) -> float:
+    return math.sin(rad)
 
 def draw_doodle_placeholder(
     scene_id: int,
@@ -27,7 +37,6 @@ def draw_doodle_placeholder(
     Độ phân giải mặc định 1920x1080 (hoặc cao hơn) giúp zoom không bị vỡ.
     """
     rng = random.Random(seed)
-    # Nền kem
     img = Image.new("RGBA", (width, height), (251, 248, 241, 255))
     draw = ImageDraw.Draw(img)
 
@@ -95,10 +104,9 @@ def draw_doodle_placeholder(
             fill=(30, 30, 30, 255), width=6
         )
 
-    # Một biểu tượng doodle phụ trợ (ví dụ bóng đèn, đám mây, hoặc tia sáng)
+    # Biểu tượng doodle phụ trợ (bóng đèn hoặc tia sáng)
     extra_x = cx + int(head_r * 1.5)
     extra_y = cy - int(head_r * 0.6)
-    # Vẽ vài tia sáng doodle
     for angle in [0, 45, 90, 135, 180]:
         rad = math_rad(angle)
         r1, r2 = 30, 60
@@ -118,7 +126,6 @@ def draw_doodle_placeholder(
         width=3
     )
     
-    # Text badge
     try:
         font_large = ImageFont.truetype("arial.ttf", 36)
         font_sub = ImageFont.truetype("arial.ttf", 26)
@@ -127,121 +134,14 @@ def draw_doodle_placeholder(
 
     draw.text((badge_x + 25, badge_y + 12), f"SCENE #{scene_id:02d}", fill=(30, 30, 30, 255), font=font_large)
 
-    # Dòng text prompt tóm tắt ở dưới cùng
     clean_prompt = prompt_en[:80] + "..." if len(prompt_en) > 80 else prompt_en
     draw.text((margin + 25, height - margin - 50), f"Prompt: {clean_prompt}", fill=(120, 120, 120, 255), font=font_sub)
 
     os.makedirs(os.path.dirname(os.path.abspath(output_path)), exist_ok=True)
-    # Chuyển về RGB để lưu PNG chuẩn
     rgb_img = img.convert("RGB")
     rgb_img.save(output_path, "PNG", quality=95)
     return output_path
 
-def math_rad(deg: float) -> float:
-    import math
-    return math.radians(deg)
-
-def math_cos(rad: float) -> float:
-    import math
-    return math.cos(rad)
-
-def math_sin(rad: float) -> float:
-    import math
-    return math.sin(rad)
-
-def generate_images(
-    project_dir: str,
-    scene_id: Optional[int] = None,
-    variants: int = 1,
-    force: bool = False,
-    ignore_approval: bool = False,
-    progress_callback: Optional[Callable[[float, str, Optional[Dict[str, Any]]], None]] = None
-) -> ImagesData:
-    """
-    Thực hiện Bước 4 (Images):
-    - Đọc prompts.json
-    - Chỉ sinh cho các cảnh đã 'approved' (hoặc tất cả nếu ignore_approval / --all)
-    - Tự động chuyển đổi giữa 'placeholder', 'comfyui' hoặc 'diffusers' theo config
-    - Lưu seed từng ảnh vào metadata.json để tái hiện
-    - Hỗ trợ giải phóng VRAM nghiêm ngặt sau mỗi tác vụ
-    """
-    config = load_project_config(project_dir)
-    img_cfg = config.get("images", {})
-    engine = img_cfg.get("engine", "placeholder")
-    width = img_cfg.get("width", 1920)
-    height = img_cfg.get("height", 1080)
-    base_seed = img_cfg.get("seed", -1)
-    
-    prompts_path = os.path.join(project_dir, "prompts.json")
-    if not os.path.exists(prompts_path):
-        raise FileNotFoundError(f"Chưa có prompts.json. Vui lòng chạy bước Prompts trước: {prompts_path}")
-        
-    prompts_hash = compute_file_hash(prompts_path)
-    images_dir = os.path.join(project_dir, "images")
-    os.makedirs(images_dir, exist_ok=True)
-    metadata_path = os.path.join(images_dir, "metadata.json")
-    
-    with open(prompts_path, "r", encoding="utf-8") as f:
-        prompts_data = PromptsData.model_validate_json(f.read())
-        
-    # Lấy danh sách ảnh cũ đã có nếu có
-    old_items_map = {}
-    if os.path.exists(metadata_path):
-        try:
-            with open(metadata_path, "r", encoding="utf-8") as f:
-                m_data = json.load(f)
-                for it in m_data.get("items", []):
-                    old_items_map[it["scene_id"]] = it
-        except Exception:
-            pass
-
-    targets = prompts_data.prompts
-    if scene_id is not None:
-        targets = [p for p in targets if p.scene_id == scene_id]
-        if not targets:
-            raise ValueError(f"Không tìm thấy cảnh #{scene_id} trong prompts.json")
-
-    total = len(targets)
-    if progress_callback:
-        progress_callback(0.05, f"Bắt đầu chuẩn bị sinh ảnh ({engine}) cho {total} cảnh...", None)
-
-    active_items: List[ImageMetaItem] = []
-    
-    for idx, p_item in enumerate(targets, start=1):
-        sc_id = p_item.scene_id
-        
-        # Kiểm tra status duyệt
-        if p_item.status != "approved" and not ignore_approval:
-            # Nếu chưa duyệt, bỏ qua hoặc giữ ảnh cũ nếu đã có
-            if sc_id in old_items_map:
-                active_items.append(ImageMetaItem(**old_items_map[sc_id]))
-            continue
-            
-        img_filename = f"scene_{sc_id:03d}.png"
-        img_filepath = os.path.join(images_dir, img_filename)
-        
-        should_generate = True
-        if not force and os.path.exists(img_filepath) and sc_id in old_items_map:
-            should_generate = False
-            
-        if should_generate:
-            if progress_callback:
-                pct = 0.05 + 0.85 * (idx / total)
-                progress_callback(pct, f"Đang sinh ảnh cảnh {sc_id}/{prompts_data.prompts[-1].scene_id}...", {"scene_id": sc_id})
-                
-            seed = random.randint(100000, 999999) if base_seed == -1 else (base_seed + sc_id)
-            full_prompt = f"{prompts_data.style_prefix}, {p_item.prompt_en}".strip(", ")
-            
-            if engine == "placeholder":
-                draw_doodle_placeholder(
-                    scene_id=sc_id,
-                    prompt_en=p_item.prompt_en,
-                    overlay_text=p_item.overlay_text,
-                    output_path=img_filepath,
-                    width=width,
-                    height=height,
-                    seed=seed
-                )
 class DiffusersEngine:
     """
     Bộ sinh ảnh cục bộ bằng Diffusers, tối ưu đặc biệt cho GPU 6GB VRAM (RTX 4050):
@@ -254,14 +154,13 @@ class DiffusersEngine:
         self.use_cpu_offload = use_cpu_offload
         self.pipe = None
 
-    def load(self):
+    def load(self) -> bool:
         try:
             import torch
             from diffusers import StableDiffusionPipeline
             
             dtype = torch.float16 if torch.cuda.is_available() else torch.float32
             
-            # Kiểm tra xem là đường dẫn file .safetensors hay HuggingFace repo
             if os.path.exists(self.model_id) and self.model_id.endswith((".safetensors", ".ckpt")):
                 self.pipe = StableDiffusionPipeline.from_single_file(
                     self.model_id,
@@ -277,7 +176,6 @@ class DiffusersEngine:
 
             if torch.cuda.is_available():
                 if self.use_cpu_offload:
-                    # Giảm tối đa VRAM xuống mức ~2.2GB cho card 6GB
                     self.pipe.enable_model_cpu_offload()
                 else:
                     self.pipe.to("cuda")
@@ -294,9 +192,7 @@ class DiffusersEngine:
         import torch
         gen = torch.Generator(device="cuda" if torch.cuda.is_available() else "cpu").manual_seed(seed)
         
-        # Với SD 1.5, độ phân giải nội tại là 512-768 để giữ form nét vẽ chuẩn, sau đó scale lên 1920x1080
         gen_w = min(width, 768)
-        # Đảm bảo chia hết cho 8
         gen_w = (gen_w // 8) * 8
         gen_h = int((gen_w * (height / float(width))) // 8) * 8
 
@@ -310,7 +206,6 @@ class DiffusersEngine:
             generator=gen
         )
         img = result.images[0]
-        # Phóng lớn lên kích thước mục tiêu 1920x1080
         if (img.width, img.height) != (width, height):
             img = img.resize((width, height), Image.Resampling.LANCZOS)
         return img
@@ -334,9 +229,17 @@ def generate_images(
     ignore_approval: bool = False,
     progress_callback: Optional[Callable[[float, str, Optional[Dict[str, Any]]], None]] = None
 ) -> ImagesData:
+    """
+    Thực hiện Bước 4 (Images):
+    - Đọc prompts.json
+    - Chỉ sinh cho các cảnh đã 'approved' (hoặc tất cả nếu ignore_approval / --all)
+    - Tự động chuyển đổi giữa 'diffusers' hoặc 'placeholder' theo config
+    - Lưu seed từng ảnh vào metadata.json để tái hiện
+    - Hỗ trợ giải phóng VRAM nghiêm ngặt sau mỗi tác vụ
+    """
     config = load_project_config(project_dir)
     img_cfg = config.get("images", {})
-    engine = img_cfg.get("engine", "diffusers") # Mặc định diffusers theo lựa chọn của bạn
+    engine = img_cfg.get("engine", "diffusers")
     width = img_cfg.get("width", 1920)
     height = img_cfg.get("height", 1080)
     base_seed = img_cfg.get("seed", -1)
@@ -374,13 +277,12 @@ def generate_images(
     if progress_callback:
         progress_callback(0.05, f"Bắt đầu chuẩn bị sinh ảnh ({engine}) cho {total} cảnh...", None)
 
-    # Khởi tạo Diffusers engine nếu chọn
     diff_engine = None
     if engine == "diffusers":
         diff_engine = DiffusersEngine(model_id=model_id, use_cpu_offload=True)
         is_ready = diff_engine.load()
         if not is_ready:
-            diff_engine = None # Sẽ fallback sang placeholder trên máy chưa có torch
+            diff_engine = None
 
     active_items: List[ImageMetaItem] = []
     
@@ -403,7 +305,7 @@ def generate_images(
             if should_generate:
                 if progress_callback:
                     pct = 0.05 + 0.85 * (idx / total)
-                    progress_callback(pct, f"Đang sinh ảnh cảnh {sc_id}/{prompts_data.prompts[-1].scene_id}...", {"scene_id": sc_id})
+                    progress_callback(pct, f"Đang sinh ảnh cảnh {sc_id}...", {"scene_id": sc_id})
                     
                 seed = random.randint(100000, 999999) if base_seed == -1 else (base_seed + sc_id)
                 full_prompt = f"{prompts_data.style_prefix}, {p_item.prompt_en}".strip(", ")
@@ -420,7 +322,7 @@ def generate_images(
                         )
                         img.save(img_filepath, "PNG")
                     except Exception as err:
-                        print(f"Diffusers lỗi ở cảnh {sc_id}: {err}, dùng fallback...")
+                        print(f"Diffusers lỗi ở cảnh {sc_id}: {err}, dùng fallback doodle...")
                         draw_doodle_placeholder(sc_id, p_item.prompt_en, p_item.overlay_text, img_filepath, width, height, seed)
                 else:
                     draw_doodle_placeholder(sc_id, p_item.prompt_en, p_item.overlay_text, img_filepath, width, height, seed)
@@ -440,28 +342,7 @@ def generate_images(
         if diff_engine:
             diff_engine.release()
 
-            meta = ImageMetaItem(
-                scene_id=sc_id,
-                image_file=img_filename,
-                seed=seed,
-                prompt_full=full_prompt,
-                is_active=True,
-                created_at=time.strftime("%Y-%m-%d %H:%M:%S")
-            )
-            active_items.append(meta)
-        else:
-            active_items.append(ImageMetaItem(**old_items_map[sc_id]))
-
-    # Giải phóng bộ nhớ GPU sau lượt sinh ảnh
-    try:
-        import torch
-        if torch.cuda.is_available():
-            torch.cuda.empty_cache()
-    except Exception:
-        pass
-    import gc
-    gc.collect()
-
+    # Lưu danh sách ảnh metadata
     images_data = ImagesData(
         source_fingerprint=prompts_hash or "",
         items=active_items
