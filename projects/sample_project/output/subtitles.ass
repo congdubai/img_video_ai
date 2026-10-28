@@ -1,0 +1,27 @@
+[Script Info]
+ScriptType: v4.00+
+PlayResX: 1920
+PlayResY: 1080
+WrapStyle: 0
+ScaledBorderAndShadow: yes
+
+[V4+ Styles]
+Format: Name, Fontname, Fontsize, PrimaryColour, SecondaryColour, OutlineColour, BackColour, Bold, Italic, Underline, StrikeOut, ScaleX, ScaleY, Spacing, Angle, BorderStyle, Outline, Shadow, Alignment, MarginL, MarginR, MarginV, Encoding
+Style: SubtitleDefault,Be Vietnam Pro,44,&H00FFFFFF,&H000000FF,&H00111111,&H80000000,-1,0,0,0,100,100,0,0,1,3.5,1.5,2,40,40,45,1
+Style: TitleOverlay,Be Vietnam Pro,48,&H00151515,&H000000FF,&H00FFFFFF,&H40000000,-1,0,0,0,100,100,0,0,1,4.0,2.0,8,40,40,65,1
+
+[Events]
+Format: Layer, Start, End, Style, Name, MarginL, MarginR, MarginV, Effect, Text
+Dialogue: 1,0:00:00.10,0:00:10.52,TitleOverlay,,0,0,0,,{\fad(300, 250)}TẠI SAO BẦU TRỜI XANH?
+Dialogue: 1,0:00:16.71,0:00:25.73,TitleOverlay,,0,0,0,,{\fad(300, 250)}7 SẮC CẦU VỒNG
+Dialogue: 1,0:00:55.30,0:01:01.27,TitleOverlay,,0,0,0,,{\fad(300, 250)}TÁN XẠ RAYLEIGH
+Dialogue: 0,0:00:00.00,0:00:05.80,SubtitleDefault,,0,0,0,,{\t(0, 150, \fscx108\fscy108)\t(150, 280, \fscx100\fscy100)\fad(120, 100)}Bạn đã bao giờ tự hỏi, tại sao bầu trời\Nban ngày lại có màu xanh lam?
+Dialogue: 0,0:00:06.20,0:00:10.32,SubtitleDefault,,0,0,0,,{\t(0, 150, \fscx108\fscy108)\t(150, 280, \fscx100\fscy100)\fad(120, 100)}Tại sao không phải là màu tím, màu vàng\Nhay màu đỏ?
+Dialogue: 0,0:00:10.72,0:00:16.20,SubtitleDefault,,0,0,0,,{\t(0, 150, \fscx108\fscy108)\t(150, 280, \fscx100\fscy100)\fad(120, 100)}Để trả lời câu hỏi này, chúng ta cần tìm\Nhiểu về ánh sáng mặt trời.
+Dialogue: 0,0:00:16.61,0:00:25.54,SubtitleDefault,,0,0,0,,{\t(0, 150, \fscx108\fscy108)\t(150, 280, \fscx100\fscy100)\fad(120, 100)}Ánh sáng mặt trời mà mắt ta nhìn thấy có\Nvẻ màu trắng, nhưng thực chất nó là sự hòa\Ntrộn của bảy sắc cầu vồng.
+Dialogue: 0,0:00:25.93,0:00:30.46,SubtitleDefault,,0,0,0,,{\t(0, 150, \fscx108\fscy108)\t(150, 280, \fscx100\fscy100)\fad(120, 100)}Mỗi màu sắc tương ứng với một bước sóng\Nánh sáng khác nhau.
+Dialogue: 0,0:00:30.86,0:00:38.13,SubtitleDefault,,0,0,0,,{\t(0, 150, \fscx108\fscy108)\t(150, 280, \fscx100\fscy100)\fad(120, 100)}Ánh sáng đỏ có bước sóng dài nhất, trong\Nkhi ánh sáng xanh lam và tím có bước sóng\Nngắn nhất.
+Dialogue: 0,0:00:38.53,0:00:46.48,SubtitleDefault,,0,0,0,,{\t(0, 150, \fscx108\fscy108)\t(150, 280, \fscx100\fscy100)\fad(120, 100)}Khi ánh sáng mặt trời chiếu vào bầu khí\Nquyển của Trái Đất, nó gặp phải các phân\Ntử khí oxy và nitơ.
+Dialogue: 0,0:00:46.88,0:00:54.80,SubtitleDefault,,0,0,0,,{\t(0, 150, \fscx108\fscy108)\t(150, 280, \fscx100\fscy100)\fad(120, 100)}Các bước sóng ngắn như màu xanh lam bị\Ncác phân tử này tán xạ ra khắp mọi hướng\Nmạnh hơn rất nhiều.
+Dialogue: 0,0:00:55.20,0:01:01.07,SubtitleDefault,,0,0,0,,{\t(0, 150, \fscx108\fscy108)\t(150, 280, \fscx100\fscy100)\fad(120, 100)}Hiện tượng vật lý thú vị này được các nhà\Nkhoa học gọi là tán xạ Rayleigh.
+Dialogue: 0,0:01:01.47,0:01:10.43,SubtitleDefault,,0,0,0,,{\t(0, 150, \fscx108\fscy108)\t(150, 280, \fscx100\fscy100)\fad(120, 100)}Và mắt của chúng ta lại nhạy cảm nhất với\Nánh sáng xanh, nên ta thấy cả bầu trời\Nngập tràn một màu xanh dịu mát!

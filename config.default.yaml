@@ -1,0 +1,66 @@
+# Cấu hình mặc định cho hệ thống tạo video Nguệch Ngoạc
+# Có thể ghi đè từng tham số này trong projects/<ten_du_an>/config.yaml
+
+project:
+  name: "sample_project"
+  fps: 30
+  resolution: [1920, 1080]
+
+tts:
+  engine: "kokoro"           # "kokoro" hoặc "fallback"
+  voice: "Ngọc Huyền"        # Giọng đọc Kokoro (ví dụ: vn_female, ngoc_huyen)
+  speed: 1.0                 # Tốc độ đọc (1.0 = bình thường)
+  sample_rate: 24000         # Tần số lấy mẫu âm thanh (Kokoro mặc định 24kHz)
+  silence_between_sentences: 0.4   # Khoảng im lặng giữa các câu cùng đoạn (giây)
+  silence_between_paragraphs: 0.8  # Khoảng im lặng khi xuống dòng mới (giây)
+  kokoro_model_path: "models/kokoro/kokoro-v0_19.onnx"
+  kokoro_voices_path: "models/kokoro/voices.json"
+
+scenes:
+  target_min_duration: 5.0   # Thời lượng tối thiểu mục tiêu một cảnh (giây)
+  target_max_duration: 12.0  # Thời lượng tối đa mục tiêu một cảnh (giây)
+
+prompts:
+  style_prefix: "hand-drawn doodle, thick black outlines, flat colors, simple cartoon, round white head character, cream background, minimalist stick figure style"
+  negative_prompt: "text, letters, words, watermark, realistic, 3d, photographic, detailed shading, gradient, blurry"
+  default_scene_type: "character" # "character" | "compare" | "object"
+
+images:
+  engine: "placeholder"      # "comfyui", "diffusers", hoặc "placeholder"
+  width: 1920                # Kích thước sinh ảnh (16:9)
+  height: 1080
+  comfyui_url: "http://127.0.0.1:8188"
+  comfyui_workflow: "workflows/comfyui_api.json"
+  seed: -1                   # -1 là ngẫu nhiên, số nguyên để cố định seed
+
+render:
+  encoder: "auto"            # "auto", "h264_nvenc" (GPU NVIDIA RTX 4050), hoặc "libx264" (CPU)
+  crf: 20
+  preset: "medium"           # fast, medium, slow
+  crossfade_duration: 0.4    # Thời gian chuyển cảnh mờ (giây)
+  zoom_mode: "alternate"     # "alternate" (xen kẽ zoom in / zoom out), "in", "out", "none"
+  zoom_scale: 0.08           # Độ zoom (8% trong suốt thời lượng cảnh)
+  
+  # Cấu hình chữ tiêu đề cảnh (overlay_text)
+  overlay:
+    font_name: "Be Vietnam Pro"
+    font_size: 48
+    color: "&H00111111"      # Màu đen/xám đậm phong cách doodle (ASS hex: &H00BBGGRR)
+    border_color: "&H00FFFFFF"
+    border_size: 3
+    position: "top_center"   # top_center, center, bottom_center
+    margin_v: 60
+
+  # Cấu hình phụ đề câu (subtitles)
+  subtitles:
+    font_name: "Be Vietnam Pro"
+    font_size: 44
+    primary_color: "&H00FFFFFF"    # Màu chữ trắng
+    outline_color: "&H00000000"    # Viền đen dày
+    outline_size: 3.5
+    shadow_size: 1.5
+    shadow_color: "&H80000000"
+    alignment: 2                   # 2 = Bottom Center trong ASS
+    margin_v: 45
+    effect: "pop"                  # "pop" (nảy nhẹ), "fade" (mờ dần), "none"
+    max_chars_per_line: 42         # Tự xuống dòng khi câu dài

@@ -1,0 +1,10 @@
+Bạn đã bao giờ tự hỏi, tại sao bầu trời ban ngày lại có màu xanh lam?
+Tại sao không phải là màu tím, màu vàng hay màu đỏ?
+Để trả lời câu hỏi này, chúng ta cần tìm hiểu về ánh sáng mặt trời.
+Ánh sáng mặt trời mà mắt ta nhìn thấy có vẻ màu trắng, nhưng thực chất nó là sự hòa trộn của bảy sắc cầu vồng.
+Mỗi màu sắc tương ứng với một bước sóng ánh sáng khác nhau.
+Ánh sáng đỏ có bước sóng dài nhất, trong khi ánh sáng xanh lam và tím có bước sóng ngắn nhất.
+Khi ánh sáng mặt trời chiếu vào bầu khí quyển của Trái Đất, nó gặp phải các phân tử khí oxy và nitơ.
+Các bước sóng ngắn như màu xanh lam bị các phân tử này tán xạ ra khắp mọi hướng mạnh hơn rất nhiều.
+Hiện tượng vật lý thú vị này được các nhà khoa học gọi là tán xạ Rayleigh.
+Và mắt của chúng ta lại nhạy cảm nhất với ánh sáng xanh, nên ta thấy cả bầu trời ngập tràn một màu xanh dịu mát!

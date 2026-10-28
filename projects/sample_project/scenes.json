@@ -1,0 +1,89 @@
+{
+  "version": "1.0",
+  "source_fingerprint": "137a03c032cd2b47d1894cfb4bc3121ea65dd840694d36f1feb7f86dc5459fb7",
+  "total_scenes": 8,
+  "scenes": [
+    {
+      "scene_id": 1,
+      "start": 0.0,
+      "end": 10.72,
+      "duration": 10.72,
+      "sentence_ids": [
+        1,
+        2
+      ],
+      "text": "Bạn đã bao giờ tự hỏi, tại sao bầu trời ban ngày lại có màu xanh lam? Tại sao không phải là màu tím, màu vàng hay màu đỏ?"
+    },
+    {
+      "scene_id": 2,
+      "start": 10.72,
+      "end": 16.605,
+      "duration": 5.885,
+      "sentence_ids": [
+        3
+      ],
+      "text": "Để trả lời câu hỏi này, chúng ta cần tìm hiểu về ánh sáng mặt trời."
+    },
+    {
+      "scene_id": 3,
+      "start": 16.605,
+      "end": 25.935,
+      "duration": 9.33,
+      "sentence_ids": [
+        4
+      ],
+      "text": "Ánh sáng mặt trời mà mắt ta nhìn thấy có vẻ màu trắng, nhưng thực chất nó là sự hòa trộn của bảy sắc cầu vồng."
+    },
+    {
+      "scene_id": 4,
+      "start": 25.935,
+      "end": 38.535,
+      "duration": 12.6,
+      "sentence_ids": [
+        5,
+        6
+      ],
+      "text": "Mỗi màu sắc tương ứng với một bước sóng ánh sáng khác nhau. Ánh sáng đỏ có bước sóng dài nhất, trong khi ánh sáng xanh lam và tím có bước sóng ngắn nhất."
+    },
+    {
+      "scene_id": 5,
+      "start": 38.535,
+      "end": 46.875,
+      "duration": 8.34,
+      "sentence_ids": [
+        7
+      ],
+      "text": "Khi ánh sáng mặt trời chiếu vào bầu khí quyển của Trái Đất, nó gặp phải các phân tử khí oxy và nitơ."
+    },
+    {
+      "scene_id": 6,
+      "start": 46.875,
+      "end": 55.2,
+      "duration": 8.325,
+      "sentence_ids": [
+        8
+      ],
+      "text": "Các bước sóng ngắn như màu xanh lam bị các phân tử này tán xạ ra khắp mọi hướng mạnh hơn rất nhiều."
+    },
+    {
+      "scene_id": 7,
+      "start": 55.2,
+      "end": 61.47,
+      "duration": 6.27,
+      "sentence_ids": [
+        9
+      ],
+      "text": "Hiện tượng vật lý thú vị này được các nhà khoa học gọi là tán xạ Rayleigh."
+    },
+    {
+      "scene_id": 8,
+      "start": 61.47,
+      "end": 70.83,
+      "duration": 9.36,
+      "sentence_ids": [
+        10
+      ],
+      "text": "Và mắt của chúng ta lại nhạy cảm nhất với ánh sáng xanh, nên ta thấy cả bầu trời ngập tràn một màu xanh dịu mát!"
+    }
+  ]
+}

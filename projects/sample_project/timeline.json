@@ -1,0 +1,98 @@
+{
+  "version": "1.0",
+  "source_fingerprint": "c4bb98f593c53e4222140af3414d55b9a30ef31c55f222c61fbfb55db9dcc226",
+  "sample_rate": 24000,
+  "total_duration": 70.83,
+  "sentences": [
+    {
+      "id": 1,
+      "start": 0.0,
+      "end": 5.795,
+      "duration": 5.795,
+      "silence_after": 0.4,
+      "text": "Bạn đã bao giờ tự hỏi, tại sao bầu trời ban ngày lại có màu xanh lam?",
+      "audio_file": "sentence_001.wav"
+    },
+    {
+      "id": 2,
+      "start": 6.195,
+      "end": 10.32,
+      "duration": 4.125,
+      "silence_after": 0.4,
+      "text": "Tại sao không phải là màu tím, màu vàng hay màu đỏ?",
+      "audio_file": "sentence_002.wav"
+    },
+    {
+      "id": 3,
+      "start": 10.72,
+      "end": 16.205,
+      "duration": 5.485,
+      "silence_after": 0.4,
+      "text": "Để trả lời câu hỏi này, chúng ta cần tìm hiểu về ánh sáng mặt trời.",
+      "audio_file": "sentence_003.wav"
+    },
+    {
+      "id": 4,
+      "start": 16.605,
+      "end": 25.535,
+      "duration": 8.93,
+      "silence_after": 0.4,
+      "text": "Ánh sáng mặt trời mà mắt ta nhìn thấy có vẻ màu trắng, nhưng thực chất nó là sự hòa trộn của bảy sắc cầu vồng.",
+      "audio_file": "sentence_004.wav"
+    },
+    {
+      "id": 5,
+      "start": 25.935,
+      "end": 30.46,
+      "duration": 4.525,
+      "silence_after": 0.4,
+      "text": "Mỗi màu sắc tương ứng với một bước sóng ánh sáng khác nhau.",
+      "audio_file": "sentence_005.wav"
+    },
+    {
+      "id": 6,
+      "start": 30.86,
+      "end": 38.135,
+      "duration": 7.275,
+      "silence_after": 0.4,
+      "text": "Ánh sáng đỏ có bước sóng dài nhất, trong khi ánh sáng xanh lam và tím có bước sóng ngắn nhất.",
+      "audio_file": "sentence_006.wav"
+    },
+    {
+      "id": 7,
+      "start": 38.535,
+      "end": 46.475,
+      "duration": 7.94,
+      "silence_after": 0.4,
+      "text": "Khi ánh sáng mặt trời chiếu vào bầu khí quyển của Trái Đất, nó gặp phải các phân tử khí oxy và nitơ.",
+      "audio_file": "sentence_007.wav"
+    },
+    {
+      "id": 8,
+      "start": 46.875,
+      "end": 54.8,
+      "duration": 7.925,
+      "silence_after": 0.4,
+      "text": "Các bước sóng ngắn như màu xanh lam bị các phân tử này tán xạ ra khắp mọi hướng mạnh hơn rất nhiều.",
+      "audio_file": "sentence_008.wav"
+    },
+    {
+      "id": 9,
+      "start": 55.2,
+      "end": 61.07,
+      "duration": 5.87,
+      "silence_after": 0.4,
+      "text": "Hiện tượng vật lý thú vị này được các nhà khoa học gọi là tán xạ Rayleigh.",
+      "audio_file": "sentence_009.wav"
+    },
+    {
+      "id": 10,
+      "start": 61.47,
+      "end": 70.43,
+      "duration": 8.96,
+      "silence_after": 0.4,
+      "text": "Và mắt của chúng ta lại nhạy cảm nhất với ánh sáng xanh, nên ta thấy cả bầu trời ngập tràn một màu xanh dịu mát!",
+      "audio_file": "sentence_010.wav"
+    }
+  ]
+}

@@ -1,0 +1,64 @@
+{
+  "version": "1.0",
+  "source_fingerprint": "380618760ac43c01a438705b31c603d87e2b28d7ec9423317362cd614bdd814b",
+  "style_prefix": "hand-drawn doodle, thick black outlines, flat colors, simple cartoon, round white head character, cream background, minimalist stick figure style",
+  "negative_prompt": "text, letters, words, watermark, realistic, 3d, photographic, detailed shading, gradient, blurry",
+  "prompts": [
+    {
+      "scene_id": 1,
+      "scene_type": "character",
+      "prompt_en": "round white head character looking up at the bright sky and sun, pointing finger at the blue atmosphere, simple stick figure",
+      "overlay_text": "TẠI SAO BẦU TRỜI XANH?",
+      "status": "draft"
+    },
+    {
+      "scene_id": 2,
+      "scene_type": "character",
+      "prompt_en": "round white head character looking up at the bright sky and sun, pointing finger at the blue atmosphere, simple stick figure",
+      "overlay_text": "",
+      "status": "draft"
+    },
+    {
+      "scene_id": 3,
+      "scene_type": "character",
+      "prompt_en": "round white head character looking up at the bright sky and sun, pointing finger at the blue atmosphere, simple stick figure",
+      "overlay_text": "7 SẮC CẦU VỒNG",
+      "status": "draft"
+    },
+    {
+      "scene_id": 4,
+      "scene_type": "character",
+      "prompt_en": "round white head character looking up at the bright sky and sun, pointing finger at the blue atmosphere, simple stick figure",
+      "overlay_text": "",
+      "status": "draft"
+    },
+    {
+      "scene_id": 5,
+      "scene_type": "character",
+      "prompt_en": "round white head character looking up at the bright sky and sun, pointing finger at the blue atmosphere, simple stick figure",
+      "overlay_text": "",
+      "status": "draft"
+    },
+    {
+      "scene_id": 6,
+      "scene_type": "character",
+      "prompt_en": "round white head character looking up at the bright sky and sun, pointing finger at the blue atmosphere, simple stick figure",
+      "overlay_text": "",
+      "status": "draft"
+    },
+    {
+      "scene_id": 7,
+      "scene_type": "character",
+      "prompt_en": "round white head character surrounded by floating tiny bouncing particles, air molecules doodle concept",
+      "overlay_text": "TÁN XẠ RAYLEIGH",
+      "status": "draft"
+    },
+    {
+      "scene_id": 8,
+      "scene_type": "character",
+      "prompt_en": "round white head character looking up at the bright sky and sun, pointing finger at the blue atmosphere, simple stick figure",
+      "overlay_text": "",
+      "status": "draft"
+    }
+  ]
+}

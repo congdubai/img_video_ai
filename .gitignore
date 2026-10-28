@@ -1,0 +1,36 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+env/
+venv/
+.venv/
+.pytest_cache/
+
+# Node / Vite
+web/node_modules/
+web/dist/
+web/.tmp/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# Models (heavy weights)
+models/
+*.onnx
+*.bin
+*.safetensors
+*.ckpt
+
+# Output large media files
+*.mp4
+*.wav.tmp
+projects/*/output/*.mp4
+
+# IDE / OS
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db
