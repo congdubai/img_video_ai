@@ -182,10 +182,10 @@ class DiffusersEngine:
                 self.pipe.enable_attention_slicing()
             return True
         except ImportError:
-            print("[DiffusersEngine] Chưa cài torch/diffusers. Chạy: pip install torch torchvision --index-url https://download.pytorch.org/whl/cu121 diffusers transformers accelerate")
+            print("[DiffusersEngine] Chua cai torch/diffusers. Hay chay: pip install torch torchvision --index-url https://download.pytorch.org/whl/cu121 diffusers transformers accelerate")
             return False
         except Exception as e:
-            print(f"[DiffusersEngine] Lỗi khởi tạo model Diffusers: {e}")
+            print(f"[DiffusersEngine] Loi khoi tao Diffusers: {e}")
             return False
 
     def generate(self, prompt: str, negative_prompt: str, width: int = 1024, height: int = 576, seed: int = 42, steps: int = 25) -> Image.Image:

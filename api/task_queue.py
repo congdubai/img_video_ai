@@ -35,9 +35,11 @@ class TaskQueue:
         self.active_websockets: List[Any] = []
         self._worker_task: Optional[asyncio.Task] = None
         self._cancel_requested: bool = False
+        self.loop: Optional[asyncio.AbstractEventLoop] = None
 
     def start(self):
         if self._worker_task is None:
+            self.loop = asyncio.get_running_loop()
             self._worker_task = asyncio.create_task(self._worker_loop())
 
     async def register_ws(self, websocket):
@@ -134,7 +136,8 @@ class TaskQueue:
                 task.percent = round(percent, 3)
                 task.message = message
                 task.data = data
-                asyncio.run_coroutine_threadsafe(self.broadcast_progress(task), asyncio.get_event_loop())
+                if self.loop and self.loop.is_running():
+                    asyncio.run_coroutine_threadsafe(self.broadcast_progress(task), self.loop)
 
             try:
                 # Chạy task trong thread pool để không block asyncio loop

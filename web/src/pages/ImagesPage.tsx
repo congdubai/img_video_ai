@@ -50,13 +50,25 @@ export const ImagesPage: React.FC<ImagesPageProps> = ({ projectName, onNextStep 
   }, [projectName]);
 
   const handleGenerateAll = async (ignoreApproval: boolean = false) => {
+    const approved = items.filter((it) => it.status === 'approved').length;
+    let actualAll = ignoreApproval;
+    if (!ignoreApproval && approved === 0) {
+      if (confirm('Hiện chưa có cảnh nào được duyệt. Bạn có muốn sinh ảnh cho TẤT CẢ các cảnh không?')) {
+        actualAll = true;
+      } else {
+        return;
+      }
+    }
     try {
       await triggerJob(projectName, 'images', { 
         variants: variantsCount, 
         force: true, 
-        all: ignoreApproval 
+        all: actualAll 
       });
-      setTimeout(loadData, 3000);
+      // Tự động làm mới nhiều lần để cập nhật ảnh khi tác vụ hoàn thành
+      setTimeout(loadData, 1500);
+      setTimeout(loadData, 4000);
+      setTimeout(loadData, 8000);
     } catch (err: any) {
       alert(err.message);
     }
@@ -70,7 +82,8 @@ export const ImagesPage: React.FC<ImagesPageProps> = ({ projectName, onNextStep 
         force: true, 
         all: true 
       });
-      setTimeout(loadData, 3000);
+      setTimeout(loadData, 1500);
+      setTimeout(loadData, 3500);
     } catch (err: any) {
       alert(err.message);
     }
