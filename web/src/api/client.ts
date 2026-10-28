@@ -144,6 +144,16 @@ export async function triggerJob(projectName: string, step: string, params: any 
   return res.json();
 }
 
+export async function uploadSceneImage(projectName: string, sceneId: number, file: File): Promise<void> {
+  const formData = new FormData();
+  formData.append('file', file);
+  const res = await fetch(`${API_BASE}/projects/${encodeURIComponent(projectName)}/images/${sceneId}/upload`, {
+    method: 'POST',
+    body: formData
+  });
+  if (!res.ok) throw new Error('Lỗi tải ảnh lên');
+}
+
 export async function cancelJob(taskId: string): Promise<void> {
   const res = await fetch(`${API_BASE}/jobs/${taskId}`, { method: 'DELETE' });
   if (!res.ok) throw new Error('Không thể hủy tác vụ');

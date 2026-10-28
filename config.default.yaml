@@ -26,11 +26,12 @@ prompts:
   default_scene_type: "character" # "character" | "compare" | "object"
 
 images:
-  engine: "placeholder"      # "comfyui", "diffusers", hoặc "placeholder"
-  width: 1920                # Kích thước sinh ảnh (16:9)
+  engine: "diffusers"        # "diffusers" (nhẹ ~2GB VRAM) hoặc "placeholder"
+  width: 1920                # Kích thước xuất video (16:9)
   height: 1080
-  comfyui_url: "http://127.0.0.1:8188"
-  comfyui_workflow: "workflows/comfyui_api.json"
+  diffusers_model: "runwayml/stable-diffusion-v1-5" # hoặc đường dẫn checkpoint .safetensors
+  steps: 25                  # Số bước lấy mẫu (20-25 bước là đủ đẹp)
+  guidance_scale: 7.5
   seed: -1                   # -1 là ngẫu nhiên, số nguyên để cố định seed
 
 render:

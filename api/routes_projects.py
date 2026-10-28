@@ -4,7 +4,7 @@ import io
 import json
 import yaml
 from typing import List, Optional, Any, Dict
-from fastapi import APIRouter, HTTPException, Query, Response, status
+from fastapi import APIRouter, HTTPException, Query, Response, status, UploadFile, File
 from fastapi.responses import FileResponse, StreamingResponse
 from pydantic import BaseModel
 from PIL import Image
@@ -213,6 +213,20 @@ def update_project_file(name: str, file_type: str, req: UpdateFileRequest):
         return {"message": "Đã lưu file thành công", "file_type": file_type}
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Lỗi khi lưu file: {e}")
+
+@router.post("/{name}/images/{scene_id}/upload")
+async def upload_scene_image(name: str, scene_id: int, file: UploadFile = File(...)):
+    """Cho phép tải ảnh từ máy tính lên thay thế cho bất kỳ cảnh nào."""
+    p_dir = get_project_dir(name)
+    if not os.path.exists(p_dir):
+        raise HTTPException(status_code=404, detail="Không tìm thấy dự án.")
+    images_dir = os.path.join(p_dir, "images")
+    os.makedirs(images_dir, exist_ok=True)
+    out_file = os.path.join(images_dir, f"scene_{scene_id:03d}.png")
+    contents = await file.read()
+    with open(out_file, "wb") as f:
+        f.write(contents)
+    return {"message": "Đã tải ảnh lên thành công", "scene_id": scene_id}
 
 @router.get("/{name}/media/{subpath:path}")
 def get_media_file(name: str, subpath: str, thumb: bool = False, w: int = 360):

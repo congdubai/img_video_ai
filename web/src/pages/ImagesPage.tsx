@@ -12,7 +12,7 @@ import {
   Maximize2,
   X
 } from 'lucide-react';
-import { PromptsData, ScenesData, getProjectFile, triggerJob } from '../api/client';
+import { PromptsData, ScenesData, getProjectFile, triggerJob, uploadSceneImage } from '../api/client';
 
 interface ImagesPageProps {
   projectName: string;
@@ -251,13 +251,37 @@ export const ImagesPage: React.FC<ImagesPageProps> = ({ projectName, onNextStep 
 
             {/* Action buttons */}
             <div className="flex flex-wrap items-center justify-between gap-3 pt-3 border-t border-stone-200 dark:border-stone-800">
-              <button
-                onClick={() => handleGenerateSingle(selectedItem.scene_id)}
-                className="doodle-btn px-4 py-2 bg-amber-400 hover:bg-amber-300 text-stone-950 rounded-xl font-bold text-xs flex items-center gap-1.5"
-              >
-                <RotateCcw className="w-3.5 h-3.5" />
-                <span>Sinh lại ảnh cảnh này</span>
-              </button>
+              <div className="flex items-center gap-2">
+                <button
+                  onClick={() => handleGenerateSingle(selectedItem.scene_id)}
+                  className="doodle-btn px-4 py-2 bg-amber-400 hover:bg-amber-300 text-stone-950 rounded-xl font-bold text-xs flex items-center gap-1.5"
+                >
+                  <RotateCcw className="w-3.5 h-3.5" />
+                  <span>Sinh bằng Diffusers</span>
+                </button>
+
+                <label className="doodle-btn px-4 py-2 bg-stone-100 hover:bg-stone-200 dark:bg-stone-800 dark:hover:bg-stone-700 text-stone-800 dark:text-stone-200 rounded-xl font-bold text-xs flex items-center gap-1.5 cursor-pointer">
+                  <Upload className="w-3.5 h-3.5" />
+                  <span>Tải ảnh từ máy lên</span>
+                  <input
+                    type="file"
+                    accept="image/*"
+                    className="hidden"
+                    onChange={async (e) => {
+                      const f = e.target.files?.[0];
+                      if (f && selectedSceneId !== null) {
+                        try {
+                          await uploadSceneImage(projectName, selectedSceneId, f);
+                          setRefreshKey(Date.now());
+                          alert(`Đã tải ảnh lên thành công cho Cảnh #${selectedSceneId}!`);
+                        } catch (err: any) {
+                          alert(err.message);
+                        }
+                      }
+                    }}
+                  />
+                </label>
+              </div>
 
               <button
                 onClick={() => setSelectedSceneId(null)}

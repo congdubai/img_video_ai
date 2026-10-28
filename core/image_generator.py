@@ -242,22 +242,203 @@ def generate_images(
                     height=height,
                     seed=seed
                 )
-            elif engine == "comfyui":
-                # Kết nối ComfyUI REST API
-                comfy_url = img_cfg.get("comfyui_url", "http://127.0.0.1:8188")
-                # Fallback vẽ placeholder nếu ComfyUI chưa bật
-                try:
-                    import requests
-                    # Kiểm tra xem ComfyUI có online không
-                    resp = requests.get(f"{comfy_url}/system_stats", timeout=2)
-                    if resp.status_code == 200:
-                        # Gửi prompt tới ComfyUI (hỗ trợ khi về máy cá nhân)
-                        pass
-                except Exception:
-                    # Nếu ComfyUI chưa bật, vẽ ảnh placeholder để không làm đứt quy trình
-                    draw_doodle_placeholder(sc_id, p_item.prompt_en, p_item.overlay_text, img_filepath, width, height, seed)
+class DiffusersEngine:
+    """
+    Bộ sinh ảnh cục bộ bằng Diffusers, tối ưu đặc biệt cho GPU 6GB VRAM (RTX 4050):
+    - Dùng float16
+    - Bật enable_attention_slicing() và enable_model_cpu_offload() để chỉ tốn ~2GB VRAM
+    - Giải phóng toàn bộ bộ nhớ ngay sau khi sinh xong
+    """
+    def __init__(self, model_id: str = "runwayml/stable-diffusion-v1-5", use_cpu_offload: bool = True):
+        self.model_id = model_id
+        self.use_cpu_offload = use_cpu_offload
+        self.pipe = None
+
+    def load(self):
+        try:
+            import torch
+            from diffusers import StableDiffusionPipeline
+            
+            dtype = torch.float16 if torch.cuda.is_available() else torch.float32
+            
+            # Kiểm tra xem là đường dẫn file .safetensors hay HuggingFace repo
+            if os.path.exists(self.model_id) and self.model_id.endswith((".safetensors", ".ckpt")):
+                self.pipe = StableDiffusionPipeline.from_single_file(
+                    self.model_id,
+                    torch_dtype=dtype,
+                    use_safetensors=True
+                )
             else:
-                draw_doodle_placeholder(sc_id, p_item.prompt_en, p_item.overlay_text, img_filepath, width, height, seed)
+                self.pipe = StableDiffusionPipeline.from_pretrained(
+                    self.model_id,
+                    torch_dtype=dtype,
+                    safety_checker=None
+                )
+
+            if torch.cuda.is_available():
+                if self.use_cpu_offload:
+                    # Giảm tối đa VRAM xuống mức ~2.2GB cho card 6GB
+                    self.pipe.enable_model_cpu_offload()
+                else:
+                    self.pipe.to("cuda")
+                self.pipe.enable_attention_slicing()
+            return True
+        except ImportError:
+            print("[DiffusersEngine] Chưa cài torch/diffusers. Chạy: pip install torch torchvision --index-url https://download.pytorch.org/whl/cu121 diffusers transformers accelerate")
+            return False
+        except Exception as e:
+            print(f"[DiffusersEngine] Lỗi khởi tạo model Diffusers: {e}")
+            return False
+
+    def generate(self, prompt: str, negative_prompt: str, width: int = 1024, height: int = 576, seed: int = 42, steps: int = 25) -> Image.Image:
+        import torch
+        gen = torch.Generator(device="cuda" if torch.cuda.is_available() else "cpu").manual_seed(seed)
+        
+        # Với SD 1.5, độ phân giải nội tại là 512-768 để giữ form nét vẽ chuẩn, sau đó scale lên 1920x1080
+        gen_w = min(width, 768)
+        # Đảm bảo chia hết cho 8
+        gen_w = (gen_w // 8) * 8
+        gen_h = int((gen_w * (height / float(width))) // 8) * 8
+
+        result = self.pipe(
+            prompt=prompt,
+            negative_prompt=negative_prompt,
+            width=gen_w,
+            height=gen_h,
+            num_inference_steps=steps,
+            guidance_scale=7.5,
+            generator=gen
+        )
+        img = result.images[0]
+        # Phóng lớn lên kích thước mục tiêu 1920x1080
+        if (img.width, img.height) != (width, height):
+            img = img.resize((width, height), Image.Resampling.LANCZOS)
+        return img
+
+    def release(self):
+        self.pipe = None
+        try:
+            import torch
+            if torch.cuda.is_available():
+                torch.cuda.empty_cache()
+        except Exception:
+            pass
+        import gc
+        gc.collect()
+
+def generate_images(
+    project_dir: str,
+    scene_id: Optional[int] = None,
+    variants: int = 1,
+    force: bool = False,
+    ignore_approval: bool = False,
+    progress_callback: Optional[Callable[[float, str, Optional[Dict[str, Any]]], None]] = None
+) -> ImagesData:
+    config = load_project_config(project_dir)
+    img_cfg = config.get("images", {})
+    engine = img_cfg.get("engine", "diffusers") # Mặc định diffusers theo lựa chọn của bạn
+    width = img_cfg.get("width", 1920)
+    height = img_cfg.get("height", 1080)
+    base_seed = img_cfg.get("seed", -1)
+    model_id = img_cfg.get("diffusers_model", "runwayml/stable-diffusion-v1-5")
+    
+    prompts_path = os.path.join(project_dir, "prompts.json")
+    if not os.path.exists(prompts_path):
+        raise FileNotFoundError(f"Chưa có prompts.json. Vui lòng chạy bước Prompts trước: {prompts_path}")
+        
+    prompts_hash = compute_file_hash(prompts_path)
+    images_dir = os.path.join(project_dir, "images")
+    os.makedirs(images_dir, exist_ok=True)
+    metadata_path = os.path.join(images_dir, "metadata.json")
+    
+    with open(prompts_path, "r", encoding="utf-8") as f:
+        prompts_data = PromptsData.model_validate_json(f.read())
+        
+    old_items_map = {}
+    if os.path.exists(metadata_path):
+        try:
+            with open(metadata_path, "r", encoding="utf-8") as f:
+                m_data = json.load(f)
+                for it in m_data.get("items", []):
+                    old_items_map[it["scene_id"]] = it
+        except Exception:
+            pass
+
+    targets = prompts_data.prompts
+    if scene_id is not None:
+        targets = [p for p in targets if p.scene_id == scene_id]
+        if not targets:
+            raise ValueError(f"Không tìm thấy cảnh #{scene_id} trong prompts.json")
+
+    total = len(targets)
+    if progress_callback:
+        progress_callback(0.05, f"Bắt đầu chuẩn bị sinh ảnh ({engine}) cho {total} cảnh...", None)
+
+    # Khởi tạo Diffusers engine nếu chọn
+    diff_engine = None
+    if engine == "diffusers":
+        diff_engine = DiffusersEngine(model_id=model_id, use_cpu_offload=True)
+        is_ready = diff_engine.load()
+        if not is_ready:
+            diff_engine = None # Sẽ fallback sang placeholder trên máy chưa có torch
+
+    active_items: List[ImageMetaItem] = []
+    
+    try:
+        for idx, p_item in enumerate(targets, start=1):
+            sc_id = p_item.scene_id
+            
+            if p_item.status != "approved" and not ignore_approval:
+                if sc_id in old_items_map:
+                    active_items.append(ImageMetaItem(**old_items_map[sc_id]))
+                continue
+                
+            img_filename = f"scene_{sc_id:03d}.png"
+            img_filepath = os.path.join(images_dir, img_filename)
+            
+            should_generate = True
+            if not force and os.path.exists(img_filepath) and sc_id in old_items_map:
+                should_generate = False
+                
+            if should_generate:
+                if progress_callback:
+                    pct = 0.05 + 0.85 * (idx / total)
+                    progress_callback(pct, f"Đang sinh ảnh cảnh {sc_id}/{prompts_data.prompts[-1].scene_id}...", {"scene_id": sc_id})
+                    
+                seed = random.randint(100000, 999999) if base_seed == -1 else (base_seed + sc_id)
+                full_prompt = f"{prompts_data.style_prefix}, {p_item.prompt_en}".strip(", ")
+                neg_prompt = prompts_data.negative_prompt
+                
+                if diff_engine is not None:
+                    try:
+                        img = diff_engine.generate(
+                            prompt=full_prompt,
+                            negative_prompt=neg_prompt,
+                            width=width,
+                            height=height,
+                            seed=seed
+                        )
+                        img.save(img_filepath, "PNG")
+                    except Exception as err:
+                        print(f"Diffusers lỗi ở cảnh {sc_id}: {err}, dùng fallback...")
+                        draw_doodle_placeholder(sc_id, p_item.prompt_en, p_item.overlay_text, img_filepath, width, height, seed)
+                else:
+                    draw_doodle_placeholder(sc_id, p_item.prompt_en, p_item.overlay_text, img_filepath, width, height, seed)
+
+                meta = ImageMetaItem(
+                    scene_id=sc_id,
+                    image_file=img_filename,
+                    seed=seed,
+                    prompt_full=full_prompt,
+                    is_active=True,
+                    created_at=time.strftime("%Y-%m-%d %H:%M:%S")
+                )
+                active_items.append(meta)
+            else:
+                active_items.append(ImageMetaItem(**old_items_map[sc_id]))
+    finally:
+        if diff_engine:
+            diff_engine.release()
 
             meta = ImageMetaItem(
                 scene_id=sc_id,
